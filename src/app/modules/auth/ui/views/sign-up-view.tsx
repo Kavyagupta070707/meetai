@@ -2,11 +2,11 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { OctagonAlert } from "lucide-react"
 import { FaGoogle, FaGithub } from "react-icons/fa"
-import Link from "next/link" 
-import {z} from "zod"
+import Link from "next/link"
+import { z } from "zod"
 
-import {zodResolver} from "@hookform/resolvers/zod"
-import {useForm} from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useForm } from "react-hook-form"
 
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -21,21 +21,27 @@ import {
 } from "@/components/ui/form"
 
 import { authClient } from "@/lib/auth-client"
-import { useRouter } from "next/navigation"
+
 import { useState } from "react"
+
+import { useRouter } from "next/navigation"
+
+
 const formSchema = z.object({
-    name: z.string().min(1,{message: "Name is required"}),
+    name: z.string().min(1, { message: "Name is required" }),
     email: z.string().email(),
-    password: z.string().min(1,{message: "Password is required"}),
-    confirmPassword: z.string().min(1,{message: "Confirm Password is required"}),
+    password: z.string().min(1, { message: "Password is required" }),
+    confirmPassword: z.string().min(1, { message: "Confirm Password is required" }),
 
 })
-.refine((data)=> data.password === data.confirmPassword, {
-    message: "Passwords do not match",
-    path: ["confirmPassword"],
-})
+    .refine((data) => data.password === data.confirmPassword, {
+        message: "Passwords do not match",
+        path: ["confirmPassword"],
+    })
 
-export const SignUpView =()=>{
+export const SignUpView = () => {
+
+    const router = useRouter()
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -47,45 +53,66 @@ export const SignUpView =()=>{
         }
     })
 
-    const router = useRouter()
-    const [error,setError] = useState<string | null>(null);
-    const [loading,setLoading] = useState(false);
+  
+    const [error, setError] = useState<string | null>(null);
+    const [loading, setLoading] = useState(false);
 
-    const onSubmit = (data: z.infer<typeof formSchema>)=>{
+    const onSubmit = (data: z.infer<typeof formSchema>) => {
         setLoading(true);
-       authClient.signUp.email(
-  {
-    name: data.name,
-    email: data.email,
-    password: data.password
-  },
-  {
-    onSuccess: () => {
-        setLoading(false);
-        router.push("/");
-    },
-    onError: (ctx) => {
-        setLoading(false);
-      setError(ctx.error.message)
+        authClient.signUp.email(
+            {
+                name: data.name,
+                email: data.email,
+                password: data.password,
+                callbackURL: "/"
+            },
+            {
+                onSuccess: () => {
+                    setLoading(false);
+                    router.push("/");
+                  
+                },
+                onError: (ctx) => {
+                    setLoading(false);
+                    setError(ctx.error.message)
+                }
+            }
+        )
     }
-  }
-)
+    const onSocial = (provider: string) => {
+        setLoading(true);
+        authClient.signIn.social(
+            {
+                provider: provider
+                ,callbackURL: "/"
+            },
+            {
+                onSuccess: () => {
+                    setLoading(false);
+                    
+                },
+                onError: (ctx) => {
+                    setLoading(false);
+                    setError(ctx.error.message)
+                }
+            }
+        )
     }
-    return(
+    return (
         <div className="flex flex-col gap-6">
             <Card className="overflow-hidden p-0">
                 <CardContent className="grid p-0 md:grid-cols-2">
                     <Form {...form}>
-                        
+
                         <form className="p-6 md:pd-8" onSubmit={form.handleSubmit(onSubmit)}>
                             <div className="flex flex-col gap-6">
                                 <h1 className="text-2xl text-center font-semibold">Let's get started</h1>
                                 <h2 className="text-center text-muted-foreground">Create your account</h2>
-                                
-                                <FormField 
+
+                                <FormField
                                     control={form.control}
                                     name="name"
-                                    render={({field})=>(
+                                    render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Name</FormLabel>
                                             <FormControl>
@@ -95,16 +122,16 @@ export const SignUpView =()=>{
                                                     {...field}
                                                 />
                                             </FormControl>
-                                            <FormMessage /> 
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 >
 
                                 </FormField>
-                                <FormField 
+                                <FormField
                                     control={form.control}
                                     name="email"
-                                    render={({field})=>(
+                                    render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Email</FormLabel>
                                             <FormControl>
@@ -114,16 +141,16 @@ export const SignUpView =()=>{
                                                     {...field}
                                                 />
                                             </FormControl>
-                                            <FormMessage /> 
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 >
 
                                 </FormField>
-                                <FormField 
+                                <FormField
                                     control={form.control}
                                     name="password"
-                                    render={({field})=>(
+                                    render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Password</FormLabel>
                                             <FormControl>
@@ -133,16 +160,16 @@ export const SignUpView =()=>{
                                                     {...field}
                                                 />
                                             </FormControl>
-                                            <FormMessage /> 
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 >
 
                                 </FormField>
-                                <FormField 
+                                <FormField
                                     control={form.control}
                                     name="confirmPassword"
-                                    render={({field})=>(
+                                    render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Confirm Password</FormLabel>
                                             <FormControl>
@@ -152,7 +179,7 @@ export const SignUpView =()=>{
                                                     {...field}
                                                 />
                                             </FormControl>
-                                            <FormMessage /> 
+                                            <FormMessage />
                                         </FormItem>
                                     )}
                                 >
@@ -161,7 +188,7 @@ export const SignUpView =()=>{
 
                                 {!!error && (
                                     <Alert variant="destructive" className="bg-destructive/10 border-none">
-                                        <OctagonAlert className="h-4 w-4 "/> 
+                                        <OctagonAlert className="h-4 w-4 " />
                                         <AlertTitle>{error}</AlertTitle>
                                     </Alert>
                                 )}
@@ -177,12 +204,16 @@ export const SignUpView =()=>{
                                         variant="outline"
                                         className="w-full"
                                         type="button"
+                                        onClick={()=> onSocial("google")}
                                     >
                                         <FaGoogle className="mr-2 h-4 w-4" />Google</Button>
                                     <Button
                                         variant="outline"
                                         className="w-full"
                                         type="button"
+                                        onClick={() => {
+                                            onSocial("github")
+                                        }}
                                     ><FaGithub className="mr-2 h-4 w-4" />Github</Button>
                                 </div>
                                 <div className="text-center text-sm">
@@ -198,6 +229,6 @@ export const SignUpView =()=>{
                 </CardContent>
 
             </Card>
-        </div>   
+        </div>
     )
 }

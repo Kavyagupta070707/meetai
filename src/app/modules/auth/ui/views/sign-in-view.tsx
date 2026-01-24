@@ -21,8 +21,9 @@ import {
 } from "@/components/ui/form"
 
 import { authClient } from "@/lib/auth-client"
-import { useRouter } from "next/navigation"
+
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 const formSchema = z.object({
     email: z.string().email(),
     password: z.string().min(1,{message: "Password is required"}),
@@ -30,6 +31,8 @@ const formSchema = z.object({
 });
 
 export const SignInView =()=>{
+
+    const router = useRouter();
 
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -39,7 +42,7 @@ export const SignInView =()=>{
         }
     })
 
-    const router = useRouter()
+   
     const [error,setError] = useState<string | null>(null);
     const [loading,setLoading] = useState(false);
 
@@ -48,12 +51,14 @@ export const SignInView =()=>{
        authClient.signIn.email(
   {
     email: data.email,
-    password: data.password
+    password: data.password,
+    callbackURL: "/"
   },
   {
     onSuccess: () => {
         setLoading(false);
         router.push("/");
+        
     },
     onError: (ctx) => {
         setLoading(false);
@@ -61,6 +66,25 @@ export const SignInView =()=>{
     }
   }
 )
+    }
+    const onSocial = (provider: string) => {
+        setLoading(true);
+        authClient.signIn.social(
+            {
+                provider: provider,
+                callbackURL: "/"
+            },
+            {
+                onSuccess: () => {
+                    setLoading(false);
+                    
+                },
+                onError: (ctx) => {
+                    setLoading(false);
+                    setError(ctx.error.message)
+                }
+            }
+        )
     }
     return(
         <div className="flex flex-col gap-6">
@@ -127,12 +151,18 @@ export const SignInView =()=>{
                                         variant="outline"
                                         className="w-full"
                                         type="button"
+                                        onClick={()=>{
+                                            onSocial("google")
+                                        }}
                                     >
                                         <FaGoogle className="mr-2 h-4 w-4" />Google</Button>
                                     <Button
                                         variant="outline"
                                         className="w-full"
                                         type="button"
+                                        onClick={()=>{
+                                            onSocial("github")
+                                        }}
                                     ><FaGithub className="mr-2 h-4 w-4" />Github</Button>
                                 </div>
                                 <div className="text-center text-sm">
