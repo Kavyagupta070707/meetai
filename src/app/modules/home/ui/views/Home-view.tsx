@@ -8,8 +8,6 @@ export default function HomeView() {
 
 
   return (
-    <div>
-      Logged in as {session?.user?.name}
-    </div>
+    <div></div>
   );
 }
