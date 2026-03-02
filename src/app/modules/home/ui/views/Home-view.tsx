@@ -5,11 +5,10 @@ import { useQuery } from "@tanstack/react-query";
 
 
 export default function HomeView() {
-  const trpc=useTRPC();
-  const {data}=useQuery(trpc.hello.queryOptions({text:"Kavya"}))
+  
 
 
   return (
-    <div>{data?.greeting}</div>
+    <div>Home View</div>
   );
 }
