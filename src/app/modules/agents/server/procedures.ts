@@ -8,10 +8,10 @@ export const agentsRouter = createTRPCRouter({
         const data = await db.select().from(agents);
 
         // await new Promise((resolve) => setTimeout(resolve, 5000));
-        throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "Failed to fetch agents"
-        })
+        // throw new TRPCError({
+        //     code: "INTERNAL_SERVER_ERROR",
+        //     message: "Failed to fetch agents"
+        // })
 
         return data;
     })
